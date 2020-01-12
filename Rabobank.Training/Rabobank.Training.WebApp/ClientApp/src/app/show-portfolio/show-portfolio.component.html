@@ -1,0 +1,35 @@
+<h1 id="tableLabel">
+  Portfolio
+</h1>
+<p>This component demonstrates fetching data from the server.</p>
+<p *ngIf="!fomArray"><em>Loading...</em></p>
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="fomArray">
+  <thead>
+    <tr>
+      <th colspan="1">Code</th>
+      <th colspan="1">Name</th>
+      <th colspan="1">Value</th>      
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let fomItem of fomArray">
+      <td colspan="1">
+      {{ fomItem.code }}
+        <div *ngIf="fomItem.mandates">          
+          <table>
+            <tbody>
+              <tr *ngFor="let mtItem of fomItem.mandates">
+                <td>{{ mtItem.name }}</td>
+                <td>{{ mtItem.allocation | percent: '1.1' }}</td>
+                <td>{{ mtItem.value | currency:'EUR':'symbol' : '1.0-0' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+      <td colspan="1">{{ fomItem.name }}</td>
+      <td colspan="1">{{ fomItem.value | currency:'EUR':'symbol' : '1.0-0' }}</td>
+    </tr>
+  </tbody>
+</table>
+
