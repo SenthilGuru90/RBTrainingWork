@@ -10,7 +10,7 @@ export class ShowPortfolioComponent {
   public fomArray: PositionVM[];  
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseurl: string) {
-    http.get<PositionVM[]>(baseurl + 'api/portfolio').subscribe(result => {
+    http.get<PositionVM[]>(baseurl + 'portfolio').subscribe(result => {
       this.fomArray = result;
     }, error => {
         console.error(error);

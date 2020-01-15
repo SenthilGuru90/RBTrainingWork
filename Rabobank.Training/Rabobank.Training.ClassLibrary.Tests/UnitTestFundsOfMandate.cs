@@ -11,11 +11,21 @@ namespace Rabobank.Training.ClassLibrary.Tests
     public class UnitTestFundsOfMandate
     {
         ProcessHolder prc = new ProcessHolder();
-        public List<FundOfMandates> Result => prc.ReadFundOfMandatesFile("..\\..\\..\\TestData\\FundsOfMandatesData.xml");
+        string xmlPath = "..\\..\\..\\TestData\\FundsOfMandatesData.xml";
+        
 
+        [TestMethod]
+        public void ReadFundOfMandatesFile_ValidNameShouldWork()
+        {
+            var actual = prc.ReadFundOfMandatesFile("..\\..\\..\\TestData\\FundsOfMandatesData.xml");
+
+            Assert.IsTrue(actual.Count > 0);
+        }
+        
         [TestMethod]
         public void ListOfFundOfMandates_HavingElements_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             //Making sure that Collection is having at least one element
             Result.Should().NotBeNull().And.HaveCount(c => c > 0).And.OnlyHaveUniqueItems();            
         }
@@ -23,6 +33,8 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingInstrumentNameWithStringType_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
+
             object objInstrumentName = null;
             foreach (var item in Result.Select(x=>x.InstrumentName))
             {
@@ -35,6 +47,8 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingInstrumentCodeWithStringType_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
+
             object objInstrumentCode = null;
             foreach (var item in Result.Select(x => x.InstrumentCode))
             {
@@ -47,6 +61,7 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingLiquidityAllocationWithDecimalType_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             object objLiquidityAllocation = null;
             foreach (var item in Result.Select(x => x.LiquidityAllocation))
             {
@@ -59,6 +74,7 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingMandates_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             IEnumerable<object> obMandates = null;
             obMandates = Result.Select(x => x.Mandates);
 
@@ -67,7 +83,8 @@ namespace Rabobank.Training.ClassLibrary.Tests
 
         [TestMethod]
         public void FundOfMandates_HavingMandates_EachMandateHavingMandateIDOfTypeString_ReturnsTrue()
-        {            
+        {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             IEnumerable<object> objMandates = Result.Select(x => x.Mandates);
 
             object objMandateID = null;
@@ -86,6 +103,7 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingMandates_EachMandateHavingMandateNameOfTypeString_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             IEnumerable<object> objMandates = Result.Select(x => x.Mandates);
 
             object objMandateName = null;
@@ -104,6 +122,7 @@ namespace Rabobank.Training.ClassLibrary.Tests
         [TestMethod]
         public void FundOfMandates_HavingMandates_EachMandateHavingAllocationOfTypeDecimal_ReturnsTrue()
         {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
             IEnumerable<object> objMandates = Result.Select(x => x.Mandates);
 
             object objAllocation = null;
@@ -120,10 +139,23 @@ namespace Rabobank.Training.ClassLibrary.Tests
         }
 
         [TestMethod]
-        public void TestPath1()
+        public void GetPortfolioMethodReturnsPortfolioVMWhichHasListOfPositions()
         {
-            FundOfMandates fom = Result.ElementAt(1);
-            var Test1 = prc.GetCalculatedMandates(prc.GetPortfolio(), fom);
+            PortfolioVM portfolioVM = prc.GetPortfolio();
+
+            portfolioVM.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void FundOfMandatesReturnsPositionVM()
+        {
+            List<FundOfMandates> Result = prc.ReadFundOfMandatesFile(xmlPath);
+            PortfolioVM portfolio = prc.GetPortfolio();
+            PositionVM pVM = null;
+
+            pVM = prc.GetCalculatedMandates(portfolio.Positions.ElementAt(1), Result.ElementAt(1));
+
+            pVM.Should().NotBeNull().And.BeOfType<PositionVM>();
         }
 
     }

@@ -4,68 +4,65 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Rabobank.Training.ClassLibrary;
 
 namespace Rabobank.Training.WebApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class PortfolioController : ControllerBase
     {
-        private IFundOfMandates _fundOfMandates;
-        private List<FundOfMandates> Result;
-        private List<PositionVM> lstPositions;
+        private IFundOfMandatesProcessor _fundOfMandates = null;
+        private IConfiguration config;
+        private readonly ILoggerFactory loggerFactory;
 
-        public PortfolioController(IFundOfMandates fundOfMandates)
+        public PortfolioController(IFundOfMandatesProcessor fundOfMandates, IConfiguration config, ILoggerFactory loggerfactory)
         {
             _fundOfMandates = fundOfMandates;
-            Result = _fundOfMandates.ReadFundOfMandatesFile("TestData\\FundsOfMandatesData.xml");
+            this.config = config;
+            this.loggerFactory = loggerfactory;
         }
 
         // GET: api/Portfolio
         [HttpGet]
         public IEnumerable<PositionVM> Get()
         {
-            PortfolioVM portfolio = new PortfolioVM();
-            PositionVM position = new PositionVM();
+            PortfolioVM portfolio = null;
+            List<PositionVM> lstPositions = null;
+            List<FundOfMandates> lstFoms = null;
 
-            portfolio = _fundOfMandates.GetPortfolio();
-
-            lstPositions = new List<PositionVM>();
-
-            foreach (FundOfMandates fom in Result)
+            try
             {
-                position = new PositionVM();
-                position = _fundOfMandates.GetCalculatedMandates(portfolio, fom);
-                lstPositions.Add(position);
+                _fundOfMandates = new ProcessHolder();
+
+                var fomXmlPath = config["FundsOfMandatesFile"];
+                lstFoms = new List<FundOfMandates>();
+                lstPositions = new List<PositionVM>();
+
+                portfolio = _fundOfMandates.GetPortfolio();
+                lstFoms = _fundOfMandates.ReadFundOfMandatesFile(fomXmlPath);
+
+                foreach (PositionVM pVM in portfolio.Positions)
+                {
+                    PositionVM posVM = pVM;
+                    foreach (FundOfMandates fom in lstFoms)
+                    {
+                        posVM = _fundOfMandates.GetCalculatedMandates(pVM, fom);
+                    }
+
+                    lstPositions.Add(posVM);
+                }                
             }
-                       
+            catch (Exception e)
+            {
+                var logger = loggerFactory.CreateLogger("Porfolio Controller Logger");
+                logger.LogError(e, "Error occured while retrieving Positions", null);
+                throw e;
+            }
+
             return lstPositions.ToArray();
-        }
-
-        // GET: api/Portfolio/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST: api/Portfolio
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/Portfolio/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

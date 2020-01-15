@@ -28,7 +28,7 @@ namespace Rabobank.Training.WebApp
                 configuration.RootPath = "ClientApp/dist";
             });
 
-            services.AddSingleton<IFundOfMandates, ProcessHolder>();
+            services.AddSingleton<IFundOfMandatesProcessor, ProcessHolder>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

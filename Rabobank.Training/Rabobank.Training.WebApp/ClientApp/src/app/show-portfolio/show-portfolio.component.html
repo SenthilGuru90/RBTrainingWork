@@ -3,33 +3,28 @@
 </h1>
 <p>This component demonstrates fetching data from the server.</p>
 <p *ngIf="!fomArray"><em>Loading...</em></p>
-<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="fomArray">
-  <thead>
-    <tr>
-      <th colspan="1">Code</th>
-      <th colspan="1">Name</th>
-      <th colspan="1">Value</th>      
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let fomItem of fomArray">
-      <td colspan="1">
-      {{ fomItem.code }}
-        <div *ngIf="fomItem.mandates">          
-          <table>
-            <tbody>
-              <tr *ngFor="let mtItem of fomItem.mandates">
-                <td>{{ mtItem.name }}</td>
-                <td>{{ mtItem.allocation | percent: '1.1' }}</td>
-                <td>{{ mtItem.value | currency:'EUR':'symbol' : '1.0-0' }}</td>
-              </tr>
-            </tbody>
-          </table>
+<div class="container" *ngIf="fomArray">
+  <div class="row">
+    <div class="col"><b>Code</b></div>
+    <div class="col-8"><b>Name</b></div>
+    <div class="col"><b>Value</b></div>
+  </div>
+  <hr />
+  <div *ngFor="let pos of fomArray">
+    <div class="row">
+      <div class="col">{{pos.code}}</div>
+      <div class="col-8">{{pos.name}}</div>
+      <div class="col">{{pos.value | currency:'EUR':'symbol':'1.0-0'}}</div>
+    </div>
+    <div class="row" *ngIf="pos.mandates">
+      <div class="container" *ngFor="let mandate of pos?.mandates">
+        <div class="row">
+          <div class="col-1"></div>
+          <div class="col-7">{{mandate.name}}</div>
+          <div class="col">{{mandate.allocation | percent :'1.1-1' }}</div>
+          <div class="col">{{mandate.value | currency:'EUR':'symbol':'1.0-0'}}</div>
         </div>
-      </td>
-      <td colspan="1">{{ fomItem.name }}</td>
-      <td colspan="1">{{ fomItem.value | currency:'EUR':'symbol' : '1.0-0' }}</td>
-    </tr>
-  </tbody>
-</table>
-
+      </div>
+    </div>    
+  </div>
+</div>

@@ -9,40 +9,33 @@ using System.Linq;
 
 namespace Rabobank.Training.ClassLibrary
 {
-    public class ProcessHolder : IFundOfMandates
+    public class ProcessHolder : IFundOfMandatesProcessor
     {
-        public PositionVM GetCalculatedMandates(PortfolioVM portfolio, FundOfMandates fom)
+        public PositionVM GetCalculatedMandates(PositionVM position, FundOfMandates fom)
         {
-            List<PositionVM> lstPosition = portfolio.Positions;
             decimal CalculatedSum = 0;
-
             List<MandateVM> lstMtVm = new List<MandateVM>();
-            PositionVM pVM = new PositionVM();
-            pVM = lstPosition.Where(x => x.Code == fom.InstrumentCode).FirstOrDefault();
 
-            if (pVM != null)
+            if (position.Code == fom.InstrumentCode)
             {
                 foreach (Mandate mandt in fom.Mandates)
                 {
-                    if (pVM.Code == fom.InstrumentCode)
-                    {
-                        MandateVM mtVM = new MandateVM { Allocation = mandt.Allocation / 100, Name = mandt.MandateName, Value = Math.Round(pVM.Value * mandt.Allocation / 100) };
-                        lstMtVm.Add(mtVM);
+                    MandateVM mtVM = new MandateVM { Allocation = mandt.Allocation / 100, Name = mandt.MandateName, Value = Math.Round(position.Value * mandt.Allocation / 100) };
+                    lstMtVm.Add(mtVM);
 
-                        CalculatedSum = CalculatedSum + Math.Round(pVM.Value * mandt.Allocation / 100);
-                    }
+                    CalculatedSum = CalculatedSum + Math.Round(position.Value * mandt.Allocation / 100);
                 }
 
                 if (fom.LiquidityAllocation > 0)
                 {
-                    MandateVM mtVM = new MandateVM { Allocation = fom.LiquidityAllocation / 100, Name = "Liquidity", Value = Math.Round(pVM.Value - CalculatedSum) };
+                    MandateVM mtVM = new MandateVM { Allocation = fom.LiquidityAllocation / 100, Name = "Liquidity", Value = Math.Round(position.Value - CalculatedSum) };
                     lstMtVm.Add(mtVM);
                 }
 
-                pVM.Mandates = lstMtVm; 
+                position.Mandates = lstMtVm;
             }
 
-            return pVM;
+            return position;
         }
 
         public PortfolioVM GetPortfolio()
